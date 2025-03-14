@@ -39,18 +39,53 @@ main:
 
 
     ; read first line of filename
-
+    push number_count
+    push in_format
+    push eax
+    call fscanf
+    add esp, 12
 
     ; read integers into array
-
-
-    ; find the sum
-
-
-    ; print the sum
+    mov ecx, [number_count]
+    mov esi, number_array
 
 
     ; close the file
 
+read_file_loop:
+    ; find some way to check when file is done
+    ; maybe https://en.wikipedia.org/wiki/TEST_(x86_instruction)
 
-    ; exit
+
+calculate_sum:
+    mov ecx, [number_count]
+    mov esi, number_array
+    mov eax, 0
+
+
+sum_loop:
+    ; once again test if number_count is 0
+    jmp print_results
+
+    add eax, [esi]
+    add esi, 4
+    dec ecx
+    jmp sum_loop
+
+print_results:
+    mov [sum], eax
+    push eax
+    push out_format
+    call printf
+    add esp, 8
+
+close_file:
+    push dword [file_pointer]
+    call fclose
+    add esp, 4
+    jmp exit_program
+
+exit_program:
+    mov eax, 1
+    xor ebx, ebx
+    int 0x80
