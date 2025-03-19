@@ -1,91 +1,161 @@
-;   get filename from command line
-;   open file
-;   first line of file is number of lines in file (max 1000)
-;   read the integers into an array
-;   find the sum
-;   print the sum
-;   close the file
-
+section .bss
+    buffer resb 1024
+    sum resd 1
+    filename resb 100
 
 section .data
-    file_mode db "r", 0
-    max_array_size equ 1000
-    out_format db "Sum: %d", 10, 0
-    in_format db "%d", 0
-
-section .bss
-    file_pointer resd 1                 ; pointer to file
-    number_count resd 1                 ; number of integers in the file
-    number_array resd max_array_size    ; array
-    sum resd 1                          ; sum
+    msg_open_fail db "error opening file", 10, 0
+    msg_read_fail db "error reading file", 10, 0
+    newline db 10, 0
+    file_descriptor dd 0
 
 section .text
-    global main
-    extern fopen, fscanf, printf, fclose
+    global _start
 
-main:
-    ; prompt user or get filename from command line
-    mov ebx, [esp+4]
-    mov ebx, [esp+8]        ; filename argument
-    ; maybe implement error checking?
+    _start:
+        pop eax
+        cmp eax, 2
+        jl exit
 
-    ; open file
-    push mode
-    push ebx
-    call fopen
-    add esp, 8
+        pop eax
+        pop ebx
+        
+        mov esi, ebx
+        mov edi, filename
+        call copy_string
+        
+        mov eax, 5
+        mov ebx, filename
+        mov ecx, 0
+        int 0x80
 
-    mov [file_pointer], eax
+        cmp eax, 0
+        jl open_fail
+        mov [file_descriptor], eax
+        
+        mov ebx, eax
+        mov eax, 3
+        mov ecx, buffer
+        mov edx, 1024
+        int 0x80
 
+        cmp eax, 0
+        jle read_fail
+        mov edx, eax
+        
+        xor eax, eax
+        mov [sum], eax
 
-    ; read first line of filename
-    push number_count
-    push in_format
-    push eax
-    call fscanf
-    add esp, 12
+        mov esi, buffer
+        mov ecx, edx
+        call add_integers
 
-    ; read integers into array
-    mov ecx, [number_count]
-    mov esi, number_array
+        mov eax, [sum]
+        call print_number
 
+    close_file:
+        mov eax, 6
+        mov ebx, [file_descriptor]
+        int 0x80
 
-    ; close the file
+    exit:
+        mov eax, 1
+        xor ebx, ebx
+        int 0x80
 
-read_file_loop:
-    ; find some way to check when file is done
-    ; maybe https://en.wikipedia.org/wiki/TEST_(x86_instruction)
+    open_fail:
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, msg_open_fail
+        mov edx, 19
+        int 0x80
+        jmp exit
 
+    read_fail:
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, msg_read_fail
+        mov edx, 19
+        int 0x80
+        jmp close_file
 
-calculate_sum:
-    mov ecx, [number_count]
-    mov esi, number_array
-    mov eax, 0
+    copy_string:
+        .loop:
+            mov al, [esi]
+            mov [edi], al
+            inc esi
+            inc edi
+            test al, al
+            jnz .loop
+        ret
+    
+    add_integers:
+        xor eax, eax
+        xor ebx, ebx
+        xor edi, edi
+        mov dl, 1
 
+    next_char:
+        cmp edi, ecx
+        jge done
+        mov al, [esi]
+        inc esi
+        inc edi
 
-sum_loop:
-    ; once again test if number_count is 0
-    jmp print_results
+        cmp al, 10
+        je add_to_sum
+        cmp al, '0'
+        jl next_char
+        cmp al, '9'
+        jg next_char
+        sub al, '0'
+        imul ebx, ebx, 10
+        add ebx, eax
+        jmp next_char
 
-    add eax, [esi]
-    add esi, 4
-    dec ecx
-    jmp sum_loop
+    add_to_sum:
+        cmp dl, 1
+        je skip_first_num
+        add [sum], ebx
 
-print_results:
-    mov [sum], eax
-    push eax
-    push out_format
-    call printf
-    add esp, 8
+    skip_first_num:
+        xor ebx, ebx
+        mov dl, 0
+        jmp next_char
 
-close_file:
-    push dword [file_pointer]
-    call fclose
-    add esp, 4
-    jmp exit_program
+    done:
+        cmp dl, 1
+        je ret_skip
+        add [sum], ebx
 
-exit_program:
-    mov eax, 1
-    xor ebx, ebx
-    int 0x80
+    ret_skip:
+        ret
+
+    print_number:
+        mov ecx, buffer
+        add ecx, 1024
+        mov edi, ecx
+        mov ebx, 10
+
+    .convert:
+        xor edx, edx
+        div ebx
+        add dl, '0'
+        dec edi
+        mov [edi], dl
+        test eax, eax
+        jnz .convert
+
+        mov edx, ecx
+        sub edx, edi
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, edi
+        int 0x80
+
+        mov eax, 4
+        mov ebx, 1
+        mov ecx, newline
+        mov edx, 1
+        int 0x80
+        ret
