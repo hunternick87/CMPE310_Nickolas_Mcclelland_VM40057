@@ -241,8 +241,8 @@ section .text
         ret
 ```
 ## The Output
-![Output of the code](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_1/labreport/output.png "The Output")
+![Output of the code](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_2/labreport/output.png "The Output")
 
-![Custom test output](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_1/labreport/customTestOutput.png "The Output")
+![Custom test output](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_2/labreport/customTestOutput.png "The Output")
 
-![Tests passed](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_1/labreport/testsCompleted.png "Tests Passed")
+![Tests passed](https://raw.githubusercontent.com/hunternick87/CMPE310_Nickolas_Mcclelland_VM40057/refs/heads/Lab_Assignment_2/labreport/testsCompleted.png "Tests Passed")
