@@ -4,8 +4,8 @@ const { execSync } = require('child_process');
 
 // settings
 const MAX_TESTS = 50;       // maximum number of tests
-const MAX_INT = 200;        // ints are between 0 and MAX_INT
-const MAX_INT_COUNT = 300;  // total number of integers in a test file
+const MAX_INT = 999;        // ints are between 0 and MAX_INT
+const MAX_INT_COUNT = 1000;  // total number of integers in a test file
 const FOLDER = 'tests';     // folder to store the test files
 
 // check the user input
@@ -81,4 +81,6 @@ fs.rmSync(FOLDER, { recursive: true, force: true });
 console.log('----------------------------------------');
 console.log('All tests completed.');
 console.log(`Tests passed: ${passedTests}/${testCount}`);
+console.log(`Pass percentage: ${(passedTests / testCount) * 100}%`);
+console.log('----------------------------------------');
 

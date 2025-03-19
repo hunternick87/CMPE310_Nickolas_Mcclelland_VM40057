@@ -1,5 +1,5 @@
 section .bss
-    buffer resb 1024
+    buffer resb 4096
     sum resd 1
     filename resb 100
 
@@ -36,7 +36,7 @@ section .text
         mov ebx, eax
         mov eax, 3
         mov ecx, buffer
-        mov edx, 1024
+        mov edx, 4096
         int 0x80
 
         cmp eax, 0
@@ -133,7 +133,7 @@ section .text
 
     print_number:
         mov ecx, buffer
-        add ecx, 1024
+        add ecx, 4096
         mov edi, ecx
         mov ebx, 10
 
